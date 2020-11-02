@@ -25,7 +25,7 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
      revise input message to mask profane words
      Output: tuple containing the original/revised message (str) and list of profane words that match
      the blacklist '''
-     
+
     filterList = filterList.drop(0)
     filterList = filterList["word"]
     #clean message by removing any multiple spaces
@@ -191,4 +191,3 @@ print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
 print(profanityscreen("Give me a hand. Job is a great author.", blacklist, mask=True))
 print(profanityscreen("The Scunthorpe problem is that our town's name is   censored because it contains the substring 'Cunt'. No fair you f.u.c.k.e.r! What a dumb-ass controversy.", blacklist, mask=True))
 print(profanityscreen("Do not censor the word cunt. Only a Cunt does that.", blacklist, mask=True))
-
