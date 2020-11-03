@@ -5,7 +5,7 @@ from sqlite3 import Error
 
 class database():
     """
-    this is the class that contains functions to interact with the database 
+    this is the class that contains functions to interact with the database
     """
 
     def __init__(self):
@@ -24,7 +24,7 @@ class database():
             id_sentiment integer PRIMARY KEY AUTOINCREMENT,
             type text NOT NULL)"""
         self.cur.execute(sentiment_sql)
-    
+
     def create_blacklist_table(self):
         """ allows to create the blacklist table """
         blacklist_sql = """
@@ -48,7 +48,7 @@ class database():
             text text    NOT NULL,
             id_sentiment  integer  NOT NULL,
             FOREIGN KEY (id_sentiment)
-                REFERENCES sentiment (id_sentiment) 
+                REFERENCES sentiment (id_sentiment)
         )"""
         self.cur.execute(msg_sql)
 
@@ -81,33 +81,33 @@ class database():
     ############## READ QUERY  ###################
 
     def get_blacklist_list(self):
-        """ access the list of blacklist words 
-            return : 
+        """ access the list of blacklist words
+            return :
             df : pandas dataframe (the list of blacklist words)
         """
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM blacklist", self.con)
-        
+
         return df
 
     def get_sentiment_list(self):
-        """ access the list of sentiments 
-            return : 
+        """ access the list of sentiments
+            return :
             df : pandas dataframe (the list of sentiment words)
         """
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM sentiment", self.con)
-        
+
         return df
 
     def get_test_messages(self):
-        """ access all the test messages 
-            return : 
+        """ access all the test messages
+            return :
             df : pandas dataframe (the test messages)
         """
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM test_msg", self.con)
-        
+
         return df
 
     ################### POPULATE TABLE ###################
@@ -116,7 +116,7 @@ class database():
         try:
             inputFile = open("blacklist.txt", mode = 'r')
             for line in inputFile:
-                #insert into the table 
+                #insert into the table
                 test_msg = self.insert_new_blacklist_word_query(line.strip().decode('utf-8'))
                 # commit the statements
                 self.con.commit()
@@ -124,7 +124,7 @@ class database():
             # rollback all database actions since last commit
             self.con.rollback()
             raise RuntimeError("An error occurred ...")
-    
+
     def insert_new_blacklist_word(self,word):
         """ allows to add new blacklist terms into the database
             params :
@@ -148,7 +148,7 @@ class database():
 
 
 def main():
-    db = database() 
+    db = database()
     db.query_table()
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
@@ -157,7 +157,7 @@ def main():
     inputFile = open("blacklist.txt", mode = 'r')
     for line in inputFile:
         db.insert_new_blacklist_word(line.strip())
-        
+
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
 

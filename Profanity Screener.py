@@ -9,6 +9,10 @@ import Database
 #import database class
 from Database import database
 
+#import database class
+from  Database import database
+
+
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
 #inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
@@ -193,4 +197,3 @@ print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
 print(profanityscreen("Give me a hand. Job is a great author.", blacklist, mask=True))
 print(profanityscreen("The Scunthorpe problem is that our town's name is   censored because it contains the substring 'Cunt'. No fair you f.u.c.k.e.r! What a dumb-ass controversy.", blacklist, mask=True))
 print(profanityscreen("Do not censor the word cunt. Only a Cunt does that.", blacklist, mask=True))
-
