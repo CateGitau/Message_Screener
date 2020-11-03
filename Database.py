@@ -114,8 +114,6 @@ def main():
     db = database() 
     db.query_table()
     df_blacklist = db.get_blacklist_list()
-    #print(df_blacklist.head())
-    #print(df_blacklist['word'])
     b_list = []
     b_list = df_blacklist['word']
     print(b_list)
