@@ -161,6 +161,13 @@ def main():
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
 
+    # populate blacklist with newly added terms
+    inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+    for line in inputFile:
+        db.insert_new_blacklist_word(line.strip())
+
+    df_blacklist = db.get_blacklist_list()
+    print(df_blacklist.shape)
 
 if __name__ == "__main__":
     main()
