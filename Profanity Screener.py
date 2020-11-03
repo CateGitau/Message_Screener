@@ -4,10 +4,20 @@ from nltk.corpus import stopwords
 import random
 import re
 
+#import database class 
+from  Database import database
+
+
 # read file of blacklisted terms
-inputFile = open("DSI/Natural Language Processing Challenge/blacklist.txt", mode = 'r')
-blacklist = [line.strip() for line in inputFile]
-inputFile.close()
+# inputFile = open("DSI/Natural Language Processing Challenge/blacklist.txt", mode = 'r')
+# blacklist = [line.strip() for line in inputFile]
+# inputFile.close()
+
+#read blacklist words from database
+db = database()  
+df_blacklist = db.get_blacklist_list()
+blacklist = df_blacklist['word']
+
 
 # functions
 def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*"):
@@ -89,3 +99,4 @@ print(profanityscreen(inMsg7, blacklist, mask=True))
 
 ##improvement: search for 2+ word terms - need different search strategy to scan blacklist over message rather
 ## than message (broken into n-grams) over blacklist
+
