@@ -54,25 +54,25 @@ class database():
 
      ############## INSERT QUERY  ###################
 
-    def insert_new_sentiment(self,type):
+    def insert_new_sentiment_query(self,type):
         """ insert new data into the sentiment table """
         sql = 'INSERT INTO sentiment (type) VALUES(?)'
         self.cur.execute(sql, (type,))
         return self.cur.lastrowid
 
-    def insert_new_blacklist_word(self,word):
+    def insert_new_blacklist_word_query(self,word):
         """ insert new data into the blacklist table """
         sql = 'INSERT INTO blacklist (word) VALUES(?)'
         self.cur.execute(sql, (word,))
         return self.cur.lastrowid
 
-    def insert_new_test_message(self, text):
+    def insert_new_test_message_query(self, text):
         """ insert new data into the test_msg table """
         sql = 'INSERT INTO test_msg (text) VALUES(?)'
         self.cur.execute(sql, (text,))
         return self.cur.lastrowid
 
-    def insert_new_message(self, text,sentiment):
+    def insert_new_message_query(self, text,sentiment):
         """ insert new data into the message table """
         sql = 'INSERT INTO message (text,id_sentiment) VALUES(?)'
         self.cur.execute(sql, (text,sentiment))
@@ -109,15 +109,56 @@ class database():
         
         return df
 
+    ################### POPULATE TABLE ###################
+    def populate_blacklist(self):
+        """ allows to populate the blacklist table from the text file"""
+        try:
+            inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+            for line in inputFile:
+                #insert into the table 
+                test_msg = self.insert_new_blacklist_word_query(line.strip().decode('utf-8'))
+                # commit the statements
+                self.con.commit()
+        except:
+            # rollback all database actions since last commit
+            self.con.rollback()
+            raise RuntimeError("An error occurred ...")
+    
+    def insert_new_blacklist_word(self,word):
+        """ allows to add new blacklist terms into the database
+            params :
+            word : string (the new word to insert into the database)
+        """
+        try:
+            #get the current list of blacklist terms
+            current_list = self.get_blacklist_list()
+
+            #test if the word is does not already exists in the database
+            if word not in current_list['word'].tolist():
+                print("****"+ word + "**** is not yet saved")
+                #insert new word
+                test_msg = self.insert_new_blacklist_word_query(word)
+                # commit the statements
+                self.con.commit()
+        except:
+            # rollback all database actions since last commit
+            self.con.rollback()
+            raise RuntimeError("An error occurred ...")
+
 
 def main():
     db = database() 
     db.query_table()
     df_blacklist = db.get_blacklist_list()
-    b_list = []
-    b_list = df_blacklist['word']
-    print(b_list)
+    print(df_blacklist.shape)
 
+    # populate blacklist with newly added terms
+    inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+    for line in inputFile:
+        db.insert_new_blacklist_word(line.strip())
+        
+    df_blacklist = db.get_blacklist_list()
+    print(df_blacklist.shape)
 
 if __name__ == "__main__":
     main()
