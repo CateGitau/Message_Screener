@@ -54,25 +54,25 @@ class database():
 
      ############## INSERT QUERY  ###################
 
-    def insert_new_sentiment_query(self,type):
+    def insert_new_sentiment(self,type):
         """ insert new data into the sentiment table """
         sql = 'INSERT INTO sentiment (type) VALUES(?)'
         self.cur.execute(sql, (type,))
         return self.cur.lastrowid
 
-    def insert_new_blacklist_word_query(self,word):
+    def insert_new_blacklist_word(self,word):
         """ insert new data into the blacklist table """
         sql = 'INSERT INTO blacklist (word) VALUES(?)'
         self.cur.execute(sql, (word,))
         return self.cur.lastrowid
 
-    def insert_new_test_message_query(self, text):
+    def insert_new_test_message(self, text):
         """ insert new data into the test_msg table """
         sql = 'INSERT INTO test_msg (text) VALUES(?)'
         self.cur.execute(sql, (text,))
         return self.cur.lastrowid
 
-    def insert_new_message_query(self, text,sentiment):
+    def insert_new_message(self, text,sentiment):
         """ insert new data into the message table """
         sql = 'INSERT INTO message (text,id_sentiment) VALUES(?)'
         self.cur.execute(sql, (text,sentiment))
@@ -151,7 +151,9 @@ def main():
     db = database()
     db.query_table()
     df_blacklist = db.get_blacklist_list()
-    print(df_blacklist.shape)
+    b_list = []
+    b_list = df_blacklist['word']
+    print(b_list)
 
     # populate blacklist with newly added terms
     inputFile = open("blacklist.txt", mode = 'r')
