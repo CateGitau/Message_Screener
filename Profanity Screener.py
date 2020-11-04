@@ -1,6 +1,4 @@
 # load libraries
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
 import random
 import re
 import string
@@ -62,9 +60,26 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
     # add the unique hyphenated profane words to the final terms list
     final_terms.extend(list(set([hit.group().strip() for hit in remaining_list])))
 
-    # terms that still remain are either no in the list because they were one part of
+    # terms that still remain are either not in the list because they were one part of
     # a hyphenated word or it is a multiple word term that is hyphenated in the message
     still_remaining = [term for term in black_words if term not in final_terms]
+
+    # create regex to scan terms that may contain hyphens between the words
+    still = []
+    for term in still_remaining:
+        if bool(re.search(r"\s", term)):
+            split_term = term.split()
+            regex_builder = split_term[0]
+            for i in range(1, len(split_term)):
+                regex_builder += "-?\s?" + split_term[i]
+            still.append(regex_builder)
+
+    still_regex = [re.compile(word) for word in still]
+    still_list = [regex.search(message_keepHyphen_no_punctuation) for regex in still_regex if
+                  regex.search(message_keepHyphen_no_punctuation) != None]
+
+    # add the multiple hyphenated profane words to the final terms list
+    final_terms.extend(list(set([hit.group().strip() for hit in still_list])))
 
     def cleaner(black_word, replacements):
         ''' Input: a list of blacklisted words and a set of replacement symbols
@@ -125,8 +140,14 @@ print(profanityscreen(inMsg10, blacklist, mask=True))
 inMsg11 = "Have you seen the video 2 girls 1 cup? No, but one-guy-one-jar is a must-see!"
 print(profanityscreen(inMsg11, blacklist, mask=True))
 
-##improvement: currently the black-word output list is only the base terms; can improve by
-## retunring a black-word output list that includes novel hyphenated swear words
+print(profanityscreen("you are a dumb-ass.", blacklist, mask=True))
 
-##improvement + fix: change search stragtegy to search profane terms of multiple length - scan blacklist over message rather
-## than message (broken into n-grams) over blacklist
+print(profanityscreen("dumb-ass you are", blacklist, mask=True))
+print(profanityscreen("ass-dumb you are", blacklist, mask=True))
+##ERROR - doesn't recognise hyphenated words at beginning of sentence if swear word if after the hyphen (but does if before hyphen)
+
+print(profanityscreen("Thou wolf-bitch", blacklist, mask=True))
+print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
+##ERROR - doesn't recognise at hyphenated words the end if swear word is first before hyphen (but does if after the hyphen)
+
+## MUST STILL CHANGE MASKING ALGORITHM - STILL WORD-BY-WORD CHECK
