@@ -52,7 +52,9 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
     remaining_terms = [term for term in black_words if term not in final_terms]
 
     # find the hyphenated words that the base term appears in
-    remaining = [r"(\b{term}-\w+\b) | (\b\w+-{term}\b)".format(term=term) for term in remaining_terms]
+    remaining1 = [r"(\b{term}-\w+\b)".format(term=term) for term in remaining_terms]
+    remaining2 = [r"(\b\w+-{term}\b)".format(term=term) for term in remaining_terms]
+    remaining = remaining1 + remaining2
     remaining_regex = [re.compile(word) for word in remaining]
     remaining_list = [regex.search(message_keepHyphen_no_punctuation) for regex in remaining_regex if
                       regex.search(message_keepHyphen_no_punctuation) != None]
@@ -144,10 +146,8 @@ print(profanityscreen("you are a dumb-ass.", blacklist, mask=True))
 
 print(profanityscreen("dumb-ass you are", blacklist, mask=True))
 print(profanityscreen("ass-dumb you are", blacklist, mask=True))
-##ERROR - doesn't recognise hyphenated words at beginning of sentence if swear word if after the hyphen (but does if before hyphen)
-
+print(profanityscreen("python-whore", blacklist, mask=True))
 print(profanityscreen("Thou wolf-bitch", blacklist, mask=True))
 print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
-##ERROR - doesn't recognise at hyphenated words the end if swear word is first before hyphen (but does if after the hyphen)
 
 ## MUST STILL CHANGE MASKING ALGORITHM - STILL WORD-BY-WORD CHECK
