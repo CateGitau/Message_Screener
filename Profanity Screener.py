@@ -5,9 +5,15 @@ import random
 import re
 
 # read file of blacklisted terms
-inputFile = open("DSI/Natural Language Processing Challenge/blacklist.txt", mode = 'r')
-blacklist = [line.strip() for line in inputFile]
-inputFile.close()
+#inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+#blacklist = [line.strip() for line in inputFile]
+#inputFile.close()
+
+
+#read blacklist words from database
+db = database()
+df_blacklist = db.get_blacklist_list()
+blacklist = df_blacklist['word'].tolist()
 
 # functions
 def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*"):
