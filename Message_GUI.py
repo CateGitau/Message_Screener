@@ -3,6 +3,8 @@ import pandas as pd
 import streamlit as st
 import sqlite3
 
+import re
+
 from flair.data import Sentence
 from flair.models import TextClassifier
 
@@ -14,6 +16,10 @@ inputFile.close()
 
 classifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
 
+allowed_chars = ' AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789~`!@#$%^&*()-=_+[]{}|;:",./<>?'
+punct = '!?,.@#'
+maxlen = 280
+
 def preprocess(text):
     return ''.join([' ' + char + ' ' if char in punct else char for char in [char for char in re.sub(r'http\S+', 'http', text, flags=re.MULTILINE) if char in allowed_chars]])[:maxlen]
 
@@ -23,6 +29,9 @@ add_selectbox = st.sidebar.write(
 st.sidebar.write(
     "Catherine, Fanamby, Malcolm, and Martin"
 )
+label_dict = {'0': 'Negative', '4': 'Positive'}
+
+
 st.title(" Message Screener")
 st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
 
@@ -42,10 +51,19 @@ if sentence:
     st.write(answer[0])
     
     sentimentTweet = Sentence(preprocess(sentence))
+    
+    with st.spinner('Predicting...'):
+        classifier.predict(sentimentTweet)
+        
     st.write("Sentiment analysis prediction:")
-    st.write(classifier.predict(sentimentTweet))
+
+    st.write('Your sentence is ' + str(label_dict[sentimentTweet.labels[0].value]) + ' with ', sentimentTweet.labels[0].score*100, '% confidence')
     
 publish = st.button(label = "Publish Tweet!")
+
+
+
+
 
 if publish:
     st.write("The tweet has been published!!!")
