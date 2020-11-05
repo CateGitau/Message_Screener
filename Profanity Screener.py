@@ -2,6 +2,7 @@
 import random
 import re
 import string
+from nltk import sent_tokenize
 
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
@@ -24,11 +25,27 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
      Output: tuple containing the original/revised message (str) and list of profane words that match
      the blacklist '''
 
-    # create different versions of the hyphen (convert hyphen to space, remove hyphen and keep hyphen) and remove all other punctuation
-    lowerMessage = inputMessage.lower()
-    message_splitHyphen_no_punctuation = lowerMessage.replace("-", " ").translate(str.maketrans('', '', string.punctuation))
-    message_keepHyphen_no_punctuation = lowerMessage.translate(str.maketrans('', '', string.punctuation.replace("-","")))
-    message_no_punctuation = lowerMessage.translate(str.maketrans('', '', string.punctuation))
+    #clean message by removing any multiple spaces
+    no_doublespace = re.sub(r"\s+", " ", inputMessage)
+    # convert message to lower case
+    lowerMessage = no_doublespace.lower()
+    # tokenise the sentences so that searching does not run over sentences
+    sentences = sent_tokenize(lowerMessage)
+
+    # create different versions of the hyphen in the messages
+    # convert hyphen to a single space and remove all other punctuation
+    sentences_splitHyphen_no_punctuation = [sentence.replace("-", " ").translate(str.maketrans('', '', string.punctuation)) for sentence in sentences]
+    message_splitHyphen_no_punctuation = ". ".join(sentences_splitHyphen_no_punctuation)
+
+    # keep hyphens but remove all other punctuation
+    sentences_keepHyphen_no_punctuation = [sentence.translate(str.maketrans('', '', string.punctuation.replace("-", ""))) for sentence in sentences]
+    message_keepHyphen_no_punctuation = ". ".join(sentences_keepHyphen_no_punctuation)
+
+    #remove all punctuations; hyphenated words become concatenated into one word
+    sentences_no_punctuation = [sentence.translate(str.maketrans('', '', string.punctuation)) for sentence in sentences]
+    message_no_punctuation = ". ".join(sentences_no_punctuation)
+
+    # collect message permutations into a list
     messages = [message_splitHyphen_no_punctuation, message_keepHyphen_no_punctuation, message_no_punctuation]
 
     # create regex for the blacklist terms to scan the messages
@@ -150,4 +167,27 @@ print(profanityscreen("python-whore", blacklist, mask=True))
 print(profanityscreen("Thou wolf-bitch", blacklist, mask=True))
 print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
 
+print(profanityscreen("Give me a hand. Job is a great author.", blacklist, mask=True))
+
+print(profanityscreen("The Scunthorpe problem is that our town's name is   censored because it contains the substring 'cunt'. No fair you f.u.c.k.e.r! What dumb-ass controversy.", blacklist, mask=False))
+
 ## MUST STILL CHANGE MASKING ALGORITHM - STILL WORD-BY-WORD CHECK
+
+# REGEX to find and subsequently mask remaining terms that can be detected in native form to check if they exist with punctuation between characters
+yet_remaining = ["fucker"]
+# terms that still remain are either not in the list because they were one part of
+    # a hyphenated word or becuase there are special characters between the letters
+yet_remaining = [term for term in black_words if term not in final_terms]
+yet = []
+for term in yet_remaining:
+    regex_builder = term[0]
+    for i in range(1, len(term)):
+        regex_builder += "\W*" + term[i]
+    regex_builder = r"\b{}\b".format(regex_builder)
+    yet.append(regex_builder)
+
+
+yet_regex = [re.compile(word) for word in yet]
+yet_list = [regex.search(lowerMessage) for regex in yet_regex if
+            regex.search(lowerMessage) != None]
+
