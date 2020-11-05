@@ -2,7 +2,9 @@
 import random
 import re
 import string
+from nltk import sent_tokenize
 import Database
+
 
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
@@ -25,11 +27,27 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
      Output: tuple containing the original/revised message (str) and list of profane words that match
      the blacklist '''
 
-    # create different versions of the hyphen (convert hyphen to space, remove hyphen and keep hyphen) and remove all other punctuation
-    lowerMessage = inputMessage.lower()
-    message_splitHyphen_no_punctuation = lowerMessage.replace("-", " ").translate(str.maketrans('', '', string.punctuation))
-    message_keepHyphen_no_punctuation = lowerMessage.translate(str.maketrans('', '', string.punctuation.replace("-","")))
-    message_no_punctuation = lowerMessage.translate(str.maketrans('', '', string.punctuation))
+    #clean message by removing any multiple spaces
+    no_doublespace = re.sub(r"\s+", " ", inputMessage)
+    # convert message to lower case
+    lowerMessage = no_doublespace.lower()
+    # tokenise the sentences so that searching does not run over sentences
+    sentences = sent_tokenize(lowerMessage)
+
+    # create different versions of the hyphen in the messages
+    # convert hyphen to a single space and remove all other punctuation
+    sentences_splitHyphen_no_punctuation = [sentence.replace("-", " ").translate(str.maketrans('', '', string.punctuation)) for sentence in sentences]
+    message_splitHyphen_no_punctuation = ". ".join(sentences_splitHyphen_no_punctuation)
+
+    # keep hyphens but remove all other punctuation
+    sentences_keepHyphen_no_punctuation = [sentence.translate(str.maketrans('', '', string.punctuation.replace("-", ""))) for sentence in sentences]
+    message_keepHyphen_no_punctuation = ". ".join(sentences_keepHyphen_no_punctuation)
+
+    #remove all punctuations; hyphenated words become concatenated into one word
+    sentences_no_punctuation = [sentence.translate(str.maketrans('', '', string.punctuation)) for sentence in sentences]
+    message_no_punctuation = ". ".join(sentences_no_punctuation)
+
+    # collect message permutations into a list
     messages = [message_splitHyphen_no_punctuation, message_keepHyphen_no_punctuation, message_no_punctuation]
 
     # create regex for the blacklist terms to scan the messages
@@ -84,25 +102,28 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
     # add the multiple hyphenated profane words to the final terms list
     final_terms.extend(list(set([hit.group().strip() for hit in still_list])))
 
-    def cleaner(black_word, replacements):
+    def cleaner(black_word, replacements=replacements):
         ''' Input: a list of blacklisted words and a set of replacement symbols
         Body: substitutes every second character, excluding
         the first and last characters, of a black word with random symbols
         Output: masked word '''
-        return ''.join([random.choice(replacements) if i % 2 == 1 and i != 0 and i != len (black_word)-1 and
-                                                       black_word[i].isalnum() and black_word[i+1].isalnum()
-                                                        else black_word[i] for i in range(len(black_word))])
+        return ''.join([random.choice(replacements) if i % 2 == 1 and i != 0 and i != len(black_word) - 1 and black_word[i].isalnum() else black_word[i] for i in range(len(black_word))])
 
     #censor flagged words
     if mask:
-        #break message into list of words (punctuation is attached to the preceding word because split of the space)
-        message_list = inputMessage.split()
-        #take the black words found in the message and convert to regex where the word can be immediately followed
-        # by a space, full stop, exlaimation mark or hyphen
-        black_words_regex = [f"^(.*-)?\W*({word})\W*(-.+)?$" for word in black_words]
-        regexes = [re.compile(word) for word in black_words_regex]
-        #rewrite the original message, replacing the characters in words that match the blacklist with random symbols
-        new_message = " ".join([cleaner(w, replacements) if any(regex.search(w.lower()) for regex in regexes) else w for w in message_list])
+        masker = {}
+        for term in final_terms:
+            regex_builder = "[" + term[0] + "|" + term[0].upper() + "]"
+            for i in range(1, len(term)):
+                regex_builder += "\W*" + "[" + term[i] + "|" + term[i].upper() + "]"
+            regex_builder = r"\b({})\b".format(regex_builder)
+            regex_builder = re.compile(regex_builder)
+            masker[regex_builder] = cleaner(term)
+
+        new_message = inputMessage
+        for regex, mask in masker.items():
+            new_message = re.sub(regex, mask, new_message)
+
         return (new_message, final_terms)
     else:
         return (inputMessage, final_terms)
@@ -144,11 +165,11 @@ inMsg11 = "Have you seen the video 2 girls 1 cup? No, but one-guy-one-jar is a m
 print(profanityscreen(inMsg11, blacklist, mask=True))
 
 print(profanityscreen("you are a dumb-ass.", blacklist, mask=True))
-
 print(profanityscreen("dumb-ass you are", blacklist, mask=True))
-print(profanityscreen("ass-dumb you are", blacklist, mask=True))
-print(profanityscreen("python-whore", blacklist, mask=True))
+print(profanityscreen("Ass-dumb you are", blacklist, mask=True))
+print(profanityscreen("python-whoRe", blacklist, mask=True))
 print(profanityscreen("Thou wolf-bitch", blacklist, mask=True))
 print(profanityscreen("Thou bitch-wolf", blacklist, mask=True))
-
-## MUST STILL CHANGE MASKING ALGORITHM - STILL WORD-BY-WORD CHECK
+print(profanityscreen("Give me a hand. Job is a great author.", blacklist, mask=True))
+print(profanityscreen("The Scunthorpe problem is that our town's name is   censored because it contains the substring 'cunt'. No fair you f.u.c.k.e.r! What dumb-ass controversy.", blacklist, mask=True))
+print(profanityscreen("Do not censor the word cunt. Only a cunt does that.", blacklist, mask=True))
