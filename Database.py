@@ -154,7 +154,7 @@ def main():
     print(df_blacklist.shape)
 
     # populate blacklist with newly added terms
-    inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+    inputFile = open("blacklist.txt", mode = 'r')
     for line in inputFile:
         db.insert_new_blacklist_word(line.strip())
 
