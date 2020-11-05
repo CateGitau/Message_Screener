@@ -9,7 +9,7 @@ class database():
     """
 
     def __init__(self):
-        self.con = sqlite3.connect(r"C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/db_msg_screener.sqlite3")
+        self.con = sqlite3.connect(r"db_msg_screener.sqlite3")
         self.cur = self.con.cursor()
 
     def query_table(self):
@@ -113,7 +113,7 @@ class database():
     def populate_blacklist(self):
         """ allows to populate the blacklist table from the text file"""
         try:
-            inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+            inputFile = open("blacklist.txt", mode = 'r')
             for line in inputFile:
                 #insert into the table 
                 test_msg = self.insert_new_blacklist_word_query(line.strip().decode('utf-8'))
@@ -153,7 +153,7 @@ def main():
     print(df_blacklist.shape)
 
     # populate blacklist with newly added terms
-    inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
+    inputFile = open("blacklist.txt", mode = 'r')
     for line in inputFile:
         db.insert_new_blacklist_word(line.strip())
         
