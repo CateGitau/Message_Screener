@@ -2,6 +2,7 @@
 import random
 import re
 import string
+import Database
 
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
@@ -10,9 +11,9 @@ import string
 #inputFile.close()
 
 #read blacklist words from database
-db = database()
-df_blacklist = db.get_blacklist_list()
-blacklist = df_blacklist['word'].tolist()
+db = Database.database()
+blacklist = db.get_blacklist_list()
+
 
 # functions
 def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*"):
