@@ -13,6 +13,9 @@ from Database import database
 from  Database import database
 
 
+#import database class
+from Database import database
+
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
 #inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
