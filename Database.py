@@ -79,6 +79,7 @@ class database():
         return self.cur.lastrowid
 
     ############## READ QUERY  ###################
+
     def get_blacklist_list(self):
         """ access the list of blacklist words 
             return : 
