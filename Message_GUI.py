@@ -5,8 +5,6 @@ import Database
 
 import re
 
-import re
-
 from flair.data import Sentence
 from flair.models import TextClassifier
 PS = __import__ ("Profanity Screener")
@@ -22,9 +20,6 @@ def load_screener():
 
 
 
-allowed_chars = ' AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789~`!@#$%^&*()-=_+[]{}|;:",./<>?'
-punct = '!?,.@#'
-maxlen = 280
 
 def preprocess(text):
     allowed_chars = ' AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789~`!@#$%^&*()-=_+[]{}|;:",./<>?'

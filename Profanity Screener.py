@@ -13,6 +13,12 @@ import Database
 
 #read blacklist words from database
 db = Database.database()
+
+ # populate blacklist with newly added terms
+inputFile = open("blacklist.txt", mode = 'r')
+for line in inputFile:
+    db.insert_new_blacklist_word(line.strip())
+    
 blacklist = db.get_blacklist_list()
 
 
@@ -49,6 +55,7 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
     # collect message permutations into a list
     messages = [message_splitHyphen_no_punctuation, message_keepHyphen_no_punctuation, message_no_punctuation]
 
+    filterList = filterList["word"]
     # create regex for the blacklist terms to scan the messages
     blacklist_terms = [r"\b({term})\b".format(term=term) for term in filterList]
     regexes = [re.compile(term) for term in blacklist_terms]
