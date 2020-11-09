@@ -24,12 +24,12 @@ train = pd.read_csv('/content/drive/My Drive/Module 3/Project/database/topic_ide
 
 train.head()
 
-#preprocessing 
+#preprocessing
 train['comment_text'].fillna('fillna')
 x_train=train['comment_text'].str.lower()
 y_train=train[[ "obscenity", "violence", "verbal_abuse", "identity_hate","hate","offense","neither"]].values
 
-#embedding layer 
+#embedding layer
 embed_size=100
 max_features=20000
 max_len=100
@@ -65,7 +65,7 @@ def plot_history(history):
     plt.title('Training and validation loss')
     plt.legend()
 
-# BEST MODEL with 88 % of accuracy 
+# BEST MODEL with 88 % of accuracy
 inp = Input(shape=(max_len,))
 x = Embedding(max_features, embed_size)(inp)
 x = LSTM(50, return_sequences=True)(x)
@@ -83,7 +83,7 @@ history = model.fit(train_x,y_train,epochs=epochs,batch_size=batch_size,validati
 
 plot_history(history)
 
-# save the model 
+# save the model
 model.save('/content/drive/My Drive/Module 3/Project/database/topic_identifier_model.h5')
 
 #test with a sentence
@@ -93,11 +93,11 @@ x_test = "you gay boy"
 def preprocess_test(x_test):
   """ this function allows to preprocess the test sentence
 
-      params : 
+      params :
       x_test (string) : the test message
 
       return :
-      test_x (vector) : the processed test message 
+      test_x (vector) : the processed test message
   """
   x_test = x_test.lower()
   x_test = [x_test]
@@ -106,17 +106,17 @@ def preprocess_test(x_test):
 
   return test_x
 
-# load the model 
+# load the model
 topic_identifier_model =  tf.keras.models.load_model('/content/drive/My Drive/Module 3/Project/database/topic_identifier_model.h5')
 
-#predict the topic 
+#predict the topic
 y_pred=topic_identifier_model.predict(preprocess_test(x_test))
 
 y_pred
 
 label_dict = {0: "obscenity", 1: "violence", 2: "verbal abuse", 3: "identity hate crime", 4: "hate crime", 5: "offense", 6:"neither"}
 
-#get the prediction 
-if y_pred.argmax(1)[0] != 6 : 
-  # if the tweet contains sensitive topics 
+#get the prediction
+if y_pred.argmax(1)[0] != 6 :
+  # if the tweet contains sensitive topics
   print("your tweet may contain sentences that present " + label_dict[y_pred.argmax(1)[0]]+ " with  "+str(y_pred[0][y_pred.argmax(1)[0]]*100) +" of confidence")
