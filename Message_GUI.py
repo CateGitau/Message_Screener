@@ -8,9 +8,11 @@ import re
 from flair.data import Sentence
 from flair.models import TextClassifier
 PS = __import__ ("Profanity Screener")
+from keras.models import Model
 
 SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
 EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
+topic_identifier_model =  tf.keras.models.load_model('/content/drive/My Drive/Module 3/Project/database/topic_identifier_model.h5')
 
 def load_screener():
     
@@ -95,6 +97,14 @@ def main(SentClassifier, EmoteClassifier):
             predEText = emote_dict[predEmote.value[0]]
             st.write('Your sentence is predicted to portray ' + predEText + ' with', "{:.2f}".format(predEmote.score*100), ' % confidence')
 
+    if section == "Topic Identifier":
+        topicSentence = st.text_area('Input your message/tweet here:')
+        
+        if topicSentence:
+            
+        
+        
+        
     if publish:
         publish_tweet(predText, sentence)
 
