@@ -2,6 +2,7 @@ __import__ ("Profanity Screener")
 import pandas as pd
 import streamlit as st
 import Database
+import matplotlib.pyplot as plt
 
 import re
 
@@ -73,11 +74,20 @@ def publish_tweet(sentiment, sentence):
 def main():
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
-    st.sidebar.write("Africa DSI NLP Project by Team 2")
+    st.sidebar.subheader("Africa DSI NLP Project by Team 2")
     st.sidebar.write("Catherine, Fanamby, Malcolm, and Martin")
-    section = st.sidebar.selectbox('Sections to Visit',('Swear Word Analyser', 'Sentiment Analyser', 'Topic Identifier'))
+    section = st.sidebar.radio('Sections to Visit',('Swear Word Analyser', 'Sentiment Analyser', 'Topic Identifier'))
 
-    publish = st.button(label = "Publish Tweet!")
+    
+    publish = st.sidebar.button(label = "Publish Tweet!")
+    
+    st.sidebar.markdown("This application helps determine how problematic your tweet is before publishing it."
+                    + " We utilise three main tools to achieve this."
+                    +" A swear word analyser that checks your tweet for profanity and delivers a censored tweet."
+                    +" A sentiment analyser that predicts the emotion in your tweet, to check if you were really being positive."
+                    +" Finally a topic identifier which determines if you broke one of Twitter's policies with out knowing it!"
+                    +" Once you have thouroughly scrubbed you tweet you may store your results for further analyses.")
+    
 
     if section == 'Swear Word Analyser':
         blacklist = load_screener()
@@ -157,6 +167,7 @@ def main():
               st.write("Please review  Twitter Rules and policies: "+ twitter_rules)
               st.write("And Twiiter's "+ topTopicText + " policy: "+ policies_dict[topic_pred.argmax(1)[0]])
             else:
+                st.write("Your tweet is fine in terms of policy.")
                 st.write(topic_pred)
                     
     if publish:
