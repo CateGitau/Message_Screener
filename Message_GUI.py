@@ -8,12 +8,41 @@ import re
 from flair.data import Sentence
 from flair.models import TextClassifier
 PS = __import__ ("Profanity Screener")
+
+import keras
+import tensorflow as tf
 from keras.models import Model
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 
-SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
-EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
-topic_identifier_model =  tf.keras.models.load_model('/content/drive/My Drive/Module 3/Project/database/topic_identifier_model.h5')
 
+
+
+def preprocess_test(x_test):
+  """ this function allows to preprocess the test sentence
+
+      params : 
+      x_test (string) : the test message
+
+      return :
+      test_x (vector) : the processed test message 
+  """
+  max_features=20000  
+  max_len=100
+
+  train = pd.read_csv('Topic Identifier/data/topic_identification_data.csv')
+  train['comment_text'].fillna('fillna')
+  x_train=train['comment_text'].str.lower()
+
+  x_test = x_test.lower()
+  x_test = [x_test]
+  tokenizer= Tokenizer(num_words=max_features,lower= True)
+  tokenizer.fit_on_texts(list(x_train))
+  tokenized_test=tokenizer.texts_to_sequences(x_test)
+  test_x=pad_sequences(tokenized_test,maxlen=max_len)
+
+  return test_x
+    
 def load_screener():
     
 
@@ -41,7 +70,7 @@ def publish_tweet(sentiment, sentence):
     #db1.insert_new_message_query(sentence,label_dict[sentimentTweet.labels[0].value])
 
 
-def main(SentClassifier, EmoteClassifier):
+def main():
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
     st.sidebar.write("Africa DSI NLP Project by Team 2")
@@ -60,7 +89,7 @@ def main(SentClassifier, EmoteClassifier):
         if sentence:
             # Pre-process tweet
             answer = PS.profanityscreen(sentence, blacklist, True)
-
+            st.subheader("Swear Analysis Results:")
             
             # Show predictions
 
@@ -84,6 +113,8 @@ def main(SentClassifier, EmoteClassifier):
             emote_dict = {'0': 'Anger', '1': 'Fear', '2': 'Joy', '3': 'Love', '4': 'Sadness', '5': 'Surprise'}
             
             with st.spinner('Predicting...'):
+                SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
+                EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
                 SentClassifier.predict(sentimentTweet)
                 EmoteClassifier.predict(emoteTweet)
                 
@@ -99,14 +130,37 @@ def main(SentClassifier, EmoteClassifier):
 
     if section == "Topic Identifier":
         topicSentence = st.text_area('Input your message/tweet here:')
-        
+        st.subheader("Sensitivity Analysis Results:")
         if topicSentence:
+            topicTweet = preprocess_test(topicSentence)
             
-        
-        
-        
+            topic_dict = {0: "obscenity", 1: "violence", 2: "verbal abuse", 3: "identity hate crime", 4: "hate crime", 5: "offense", 6: "neither"}
+            
+            policies_dict = {0 : "https://help.twitter.com/en/safety-and-security/offensive-tweets-and-content", 
+                 1 : "https://help.twitter.com/en/rules-and-policies/violent-threats-glorification",
+                 2 : "https://help.twitter.com/en/rules-and-policies/abusive-behavior",
+                 3 : "https://help.twitter.com/en/rules-and-policies/hateful-conduct-policy",
+                 4 : "https://help.twitter.com/en/rules-and-policies/hateful-conduct-policy",
+                 5 : "https://help.twitter.com/en/safety-and-security/offensive-tweets-and-content"}
+
+            twitter_rules = "https://help.twitter.com/en/rules-and-policies#general-policies"
+
+            with st.spinner("Predicting..."):
+                TopicClassifier =  tf.keras.models.load_model('Topic Identifier/model_saves/topic_identifier_model.h5')
+                topic_pred = TopicClassifier.predict(topicTweet)
+                
+            topTopic = topic_pred.argmax(1)[0]
+            topTopicText = topic_dict[topic_pred.argmax(1)[0]]
+            
+            if topic_pred.argmax(1)[0]!=6 :
+              st.write("Your tweet may contain sentences that promote " + topTopicText+ " with  "+str(topic_pred[0][topTopic]*100) +" % confidence")
+              st.write("Please review  Twitter Rules and policies: "+ twitter_rules)
+              st.write("And Twiiter's "+ topTopicText + " policy: "+ policies_dict[topic_pred.argmax(1)[0]])
+            else:
+                st.write(topic_pred)
+                    
     if publish:
         publish_tweet(predText, sentence)
 
 if __name__ == "__main__":
-    main(SentClassifier, EmoteClassifier)
+    main()

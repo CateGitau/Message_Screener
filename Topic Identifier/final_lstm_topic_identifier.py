@@ -98,7 +98,7 @@ def preprocess_test(x_test):
   max_features=20000  
   max_len=100
 
-  train = pd.read_csv('/content/drive/My Drive/Module 3/Project/database/topic_identification_data.csv')
+  train = pd.read_csv('Topic Identifier/data/topic_identification_data.csv')
   train['comment_text'].fillna('fillna')
   x_train=train['comment_text'].str.lower()
 
