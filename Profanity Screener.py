@@ -19,7 +19,8 @@ from Database import database
 db = Database.database()
 blacklist = db.get_blacklist_list()
 
-
+blacklist = blacklist["word"]
+blacklist = blacklist.drop(0)
 # functions
 def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*"):
     ''' Input: a message (str), a list of profane words to check against, optionally if the
