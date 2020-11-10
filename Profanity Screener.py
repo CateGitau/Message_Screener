@@ -9,20 +9,10 @@ import Database
 #import database class
 from Database import database
 
-# read file of blacklisted terms
-#inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
-#inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
-#blacklist = [line.strip() for line in inputFile]
-#inputFile.close()
+
 
 #read blacklist words from database
 db = Database.database()
-
- # populate blacklist with newly added terms
-inputFile = open("blacklist.txt", mode = 'r')
-for line in inputFile:
-    db.insert_new_blacklist_word(line.strip())
-    
 blacklist = db.get_blacklist_list()
 
 
@@ -35,7 +25,9 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
      revise input message to mask profane words
      Output: tuple containing the original/revised message (str) and list of profane words that match
      the blacklist '''
-
+     
+    filterList = filterList.drop(0)
+    filterList = filterList["word"]
     #clean message by removing any multiple spaces
     no_doublespace = re.sub(r"\s+", " ", inputMessage)
     # convert message to lower case
@@ -59,7 +51,6 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
     # collect message permutations into a list
     messages = [message_splitHyphen_no_punctuation, message_keepHyphen_no_punctuation, message_no_punctuation]
 
-    filterList = filterList["word"]
     # create regex for the blacklist terms to scan the messages
     blacklist_terms = [r"\b({term})\b".format(term=term) for term in filterList]
     regexes = [re.compile(term) for term in blacklist_terms]
@@ -159,7 +150,7 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
 
 ### Tests ###
 inMsg1 = "Bastard begot, bastard instructed, bastard in mind,... in everything illegitimate."
-print(profanityscreen(inMsg1, blacklist, mask=False))
+print(profanityscreen(inMsg1, blacklist, mask=True))
 
 inMsg2 = "Son and heir of a mongrel bitch."
 print(profanityscreen(inMsg2, blacklist, mask=True))
