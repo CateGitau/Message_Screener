@@ -10,6 +10,7 @@ from flair.models import TextClassifier
 PS = __import__ ("Profanity Screener")
 
 SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
+EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
 
 def load_screener():
     
@@ -38,7 +39,7 @@ def publish_tweet(sentiment, sentence):
     #db1.insert_new_message_query(sentence,label_dict[sentimentTweet.labels[0].value])
 
 
-def main(SentClassifier):
+def main(SentClassifier, EmoteClassifier):
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
     st.sidebar.write("Africa DSI NLP Project by Team 2")
@@ -74,18 +75,28 @@ def main(SentClassifier):
         
         if sentSentence:
             sentimentTweet = Sentence(preprocess(sentSentence))
+            emoteTweet = Sentence(preprocess(sentSentence))
+            
+            #Sentiment Dictionaries
             sentiment_dict = {'0': 'Negative', '4': 'Positive'}
+            emote_dict = {'0': 'Anger', '1': 'Fear', '2': 'Joy', '3': 'Love', '4': 'Sadness', '5': 'Surprise'}
+            
             with st.spinner('Predicting...'):
                 SentClassifier.predict(sentimentTweet)
+                EmoteClassifier.predict(emoteTweet)
+                
+            st.subheader("Sentiment Analysis Results:")
 
-            st.write("Sentiment analysis prediction:")
-
-            pred = sentimentTweet.labels[0]
-            predText = sentiment_dict[pred.value]
-            st.write('Your sentence is ' + str(predText) + ' with ', "{:.2f}".format(pred.score*100), '% confidence')
+            predSent = sentimentTweet.labels[0]
+            predSText = sentiment_dict[predSent.value[0]]
+            st.write('Your sentence is ' + str(predSText) + ' with ', "{:.2f}".format(predSent.score*100), '% confidence')
+            
+            predEmote = emoteTweet.labels[0]
+            predEText = emote_dict[predEmote.value[0]]
+            st.write('Your sentence is predicted to portray ' + predEText + ' with', "{:.2f}".format(predEmote.score*100), ' % confidence')
 
     if publish:
         publish_tweet(predText, sentence)
 
 if __name__ == "__main__":
-    main(SentClassifier)
+    main(SentClassifier, EmoteClassifier)
