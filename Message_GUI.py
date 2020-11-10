@@ -90,6 +90,7 @@ def main():
     
 
     if section == 'Swear Word Analyser':
+        st.subheader('Swear Word Analyser')
         blacklist = load_screener()
 
 
@@ -112,6 +113,7 @@ def main():
             
                 
     if section == "Sentiment Analyser":
+        st.subheader('Sentiment Analyser')
         sentSentence = st.text_area('Input your message/tweet here:')
         
         if sentSentence:
@@ -121,6 +123,8 @@ def main():
             #Sentiment Dictionaries
             sentiment_dict = {'0': 'Negative', '4': 'Positive'}
             emote_dict = {'0': 'Anger', '1': 'Fear', '2': 'Joy', '3': 'Love', '4': 'Sadness', '5': 'Surprise'}
+            emoji_dict = {'0': ':rage:', '1': ':fearful:', '2': ':joy:', '3': ':heart_eyes:', '4': ':cry:', '5': ':astonished:'}
+            basic_emo_dict = {"0": ':rage:', "4": ":smile:"}
             
             with st.spinner('Predicting...'):
                 SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
@@ -132,13 +136,16 @@ def main():
 
             predSent = sentimentTweet.labels[0]
             predSText = sentiment_dict[predSent.value[0]]
-            st.write('Your sentence is ' + str(predSText) + ' with ', "{:.2f}".format(predSent.score*100), '% confidence')
             
+            st.markdown('Your sentence is ' + str(predSText) + " " + basic_emo_dict[predSent.value[0]] + ' with '+ "{:.2f}".format(predSent.score*100)+ '% confidence')       
+         
             predEmote = emoteTweet.labels[0]
             predEText = emote_dict[predEmote.value[0]]
-            st.write('Your sentence is predicted to portray ' + predEText + ' with', "{:.2f}".format(predEmote.score*100), ' % confidence')
-
+            st.markdown('Your sentence is predicted to portray ' + predEText +  " " +emoji_dict[predEmote.value[0]] +' with '+ "{:.2f}".format(predEmote.score*100)+ ' % confidence')
+ 
+    
     if section == "Topic Identifier":
+        st.subheader("Topic Identifier")
         topicSentence = st.text_area('Input your message/tweet here:')
         st.subheader("Sensitivity Analysis Results:")
         if topicSentence:
