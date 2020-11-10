@@ -45,7 +45,7 @@ def main(SentClassifier):
     st.sidebar.write("Catherine, Fanamby, Malcolm, and Martin")
     section = st.sidebar.selectbox('Sections to Visit',('Swear Word Analyser', 'Sentiment Analyser', 'Topic Identifier'))
 
-     publish = st.button(label = "Publish Tweet!")
+    publish = st.button(label = "Publish Tweet!")
 
     if section == 'Swear Word Analyser':
         blacklist = load_screener()
@@ -67,8 +67,7 @@ def main(SentClassifier):
             st.write('Your Censored Tweet:')
             st.write(answer[0])
 
-            if publish:
-                publish_tweet(predText, sentence)
+            
                 
     if section == "Sentiment Analyser":
         sentSentence = st.text_area('Input your message/tweet here:')
@@ -85,7 +84,8 @@ def main(SentClassifier):
             predText = label_dict[pred.value]
             st.write('Your sentence is ' + str(predText) + ' with ', "{.2f}".format(pred.score*100), '% confidence')
 
-        
+    if publish:
+        publish_tweet(predText, sentence)
 
 if __name__ == "__main__":
     main(SentClassifier)
