@@ -58,7 +58,7 @@ def main(SentClassifier):
             # Pre-process tweet
             answer = PS.profanityscreen(sentence, blacklist, True)
 
-            label_dict = {'0': 'Negative', '4': 'Positive'}
+            
             # Show predictions
 
             st.write('Swear Words Found:')
@@ -74,15 +74,15 @@ def main(SentClassifier):
         
         if sentSentence:
             sentimentTweet = Sentence(preprocess(sentSentence))
-
+            sentiment_dict = {'0': 'Negative', '4': 'Positive'}
             with st.spinner('Predicting...'):
                 SentClassifier.predict(sentimentTweet)
 
             st.write("Sentiment analysis prediction:")
 
             pred = sentimentTweet.labels[0]
-            predText = label_dict[pred.value]
-            st.write('Your sentence is ' + str(predText) + ' with ', "{.2f}".format(pred.score*100), '% confidence')
+            predText = sentiment_dict[pred.value]
+            st.write('Your sentence is ' + str(predText) + ' with ', "{:.2f}".format(pred.score*100), '% confidence')
 
     if publish:
         publish_tweet(predText, sentence)
