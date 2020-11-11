@@ -18,7 +18,6 @@ from keras.preprocessing.sequence import pad_sequences
 
 
 
-
 def preprocess_test(x_test):
   """ this function allows to preprocess the test sentence
 
@@ -43,6 +42,7 @@ def preprocess_test(x_test):
   test_x=pad_sequences(tokenized_test,maxlen=max_len)
 
   return test_x
+
     
 def load_screener():
     
