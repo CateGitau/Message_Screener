@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import re
 
 from sqlite3 import Error
 
@@ -87,8 +88,9 @@ class database():
         """
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM blacklist", self.con)
-
-        return df
+        new_list = df['word'].drop(0).tolist()
+        blacklist = [self.preprocess_term(term) for term in new_list] 
+        return blacklist
 
     def get_sentiment_list(self):
         """ access the list of sentiments
@@ -98,7 +100,7 @@ class database():
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM sentiment", self.con)
 
-        return df
+        return df['type'].tolist()
 
     def get_test_messages(self):
         """ access all the test messages
@@ -108,7 +110,7 @@ class database():
         # Store the result of SQL query  in the dataframe
         df = pd.read_sql_query("SELECT * FROM test_msg", self.con)
 
-        return df
+        return df['text'].tolist()
 
     ################### POPULATE TABLE ###################
     def populate_blacklist(self):
@@ -117,7 +119,8 @@ class database():
             inputFile = open("blacklist.txt", mode = 'r')
             for line in inputFile:
                 #insert into the table
-                test_msg = self.insert_new_blacklist_word_query(line.strip().decode('utf-8'))
+                word = self.preprocess_term(line.decode('utf-8'))
+                test_msg = self.insert_new_blacklist_word_query(word)
                 # commit the statements
                 self.con.commit()
         except:
@@ -135,9 +138,10 @@ class database():
             current_list = self.get_blacklist_list()
 
             #test if the word is does not already exists in the database
-            if word not in current_list['word'].tolist():
+            if word not in current_list:
                 print("****"+ word + "**** is not yet saved")
                 #insert new word
+                word = self.preprocess_term(word)
                 test_msg = self.insert_new_blacklist_word_query(word)
                 # commit the statements
                 self.con.commit()
@@ -147,12 +151,22 @@ class database():
             raise RuntimeError("An error occurred ...")
 
 
+    def preprocess_term(self,term):
+        term = term.lower() # lower case
+        term = term.strip() # remove leading and trailing spaces
+        term = re.sub(' +', ' ', term) #remove multiple internal spaces
+        return term
+    
 def main():
     db = database()
     db.query_table()
     df_blacklist = db.get_blacklist_list()
-    print(df_blacklist.shape)
+    print(df_blacklist)
 
+
+    term = "BLACK"
+    print(db.preprocess_term(term))
+    """
     # populate blacklist with newly added terms
     inputFile = open("blacklist.txt", mode = 'r')
     for line in inputFile:
@@ -160,7 +174,7 @@ def main():
 
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
-
+    
     # populate blacklist with newly added terms
     inputFile = open("blacklist.txt", mode = 'r')
     for line in inputFile:
@@ -176,6 +190,7 @@ def main():
 
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
+    """
 
 if __name__ == "__main__":
     main()

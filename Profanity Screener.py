@@ -31,8 +31,9 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#*")
      Output: tuple containing the original/revised message (str) and list of profane words that match
      the blacklist '''
 
-    filterList = filterList["word"]
-    filterList = filterList.drop(0)
+    #filterList = filterList["word"]
+    #filterList = filterList.drop(0)
+    
     #clean message by removing any multiple spaces
     no_doublespace = re.sub(r"\s+", " ", inputMessage)
     # convert message to lower case
