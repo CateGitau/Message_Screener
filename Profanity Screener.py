@@ -8,9 +8,9 @@ import Database
 
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
-inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
-blacklist = [line.strip() for line in inputFile]
-inputFile.close()
+#inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
+#blacklist = [line.strip() for line in inputFile]
+#inputFile.close()
 
 #read blacklist words from database
 db = Database.database()
@@ -21,7 +21,6 @@ for line in inputFile:
     db.insert_new_blacklist_word(line.strip())
     
 blacklist = db.get_blacklist_list()
-
 
 # functions
 def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
