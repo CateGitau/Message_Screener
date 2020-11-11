@@ -6,4 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['Message_GUI.py', 'Database.py', 'Profanity Screener.py', 'Topic Identifier\\lstm_topic_identifier.py']
+recent_files = ['Message_GUI.py', 'Database.py', 'Profanity Screener.py']
+

@@ -168,20 +168,23 @@ def main():
             with st.spinner("Predicting..."):
                 TopicClassifier =  tf.keras.models.load_model('Topic Identifier/model_saves/topic_identifier_model.h5')
                 topic_pred = TopicClassifier.predict(topicTweet)
-                
+            
+            
             topTopic = topic_pred.argmax(1)[0]
             topTopicText = topic_dict[topic_pred.argmax(1)[0]]
             
+            graph_pred = pd.DataFrame(topic_pred, columns = ["obscenity", "violence", "verbal abuse", "identity hate crime", "hate crime", "offense", "neither"])
             if topic_pred.argmax(1)[0]!=6 :
               st.write("Your tweet may contain sentences that promote " + topTopicText+ " with  "+str(topic_pred[0][topTopic]*100) +" % confidence")
               st.write("Please review  Twitter Rules and policies: "+ twitter_rules)
               st.write("And Twiiter's "+ topTopicText + " policy: "+ policies_dict[topic_pred.argmax(1)[0]])
             else:
                 st.write("Your tweet is fine in terms of policy.")
+                st.area_chart(graph_pred)
                 st.write(topic_pred)
               
     if publish:
-        publish_tweet(predText, sentence)
+        publish_tweet(predSText, sentence)
 
 if __name__ == "__main__":
     main()
