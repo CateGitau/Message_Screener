@@ -64,15 +64,17 @@ def preprocess(text):
 
 
 def publish_tweet(sentiment, sentence):
-    st.write("The tweet has been published!!!")
+    st.sidebar.write("The tweet has been published!!!")
     db1 =  Database.database()
-    db1.insert_new_sentiment_query(sentiment)
+    if sentiment != "None":
+        db1.insert_new_sentiment_query(sentiment)
     db1.insert_new_test_message_query(sentence)
     #db1.insert_new_message_query(sentence,label_dict[sentimentTweet.labels[0].value])
 
 
 def main():
     
+    works = False
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
     st.sidebar.image("image_resources/DSI-logo.jpg", use_column_width = True)
@@ -84,12 +86,6 @@ def main():
     
     publish = st.sidebar.button(label = "Publish Tweet!")
     
-    st.sidebar.markdown("This application helps determine how problematic your tweet is before publishing it."
-                    + " We utilise three main tools to achieve this."
-                    +" A swear word analyser that checks your tweet for profanity and delivers a censored tweet."
-                    +" A sentiment analyser that predicts the emotion in your tweet, to check if you were really being positive."
-                    +" Finally a topic identifier which determines if you broke one of Twitter's policies with out knowing it!"
-                    +" Once you have thouroughly scrubbed you tweet you may store your results for further analyses.")
     
 
     if section == 'Swear Word Analyser':
@@ -184,7 +180,37 @@ def main():
                 st.write(topic_pred)
               
     if publish:
-        publish_tweet(predSText, sentence)
+        
+            
+        if tweet == sentence:
+            works = True
+            sentiment = "None"
+            sentence = sentence
+            publish_tweet(sentiment, sentence)
+                
+        elif tweet == "Emotion Tweet" and sentSentence:
+            works = True
+            sentiment = predEText
+            sentence = sentSentence
+            publish_tweet(sentiment, sentence)
+            
+        elif tweet == "Topic Tweet" and topicSentence:
+            works = True
+            sentiment = predEText
+            sentence = topicSentence
+            publish_tweet(sentiment, sentence)
+            
+        else:
+            st.sidebar.write("You haven't written or analysed your tweet yet.")
+        
+
+    st.sidebar.markdown("This application helps determine how problematic your tweet is before publishing it."
+                    + " We utilise three main tools to achieve this."
+                    +" A swear word analyser that checks your tweet for profanity and delivers a censored tweet."
+                    +" A sentiment analyser that predicts the emotion in your tweet, to check if you were really being positive."
+                    +" Finally a topic identifier which determines if you broke one of Twitter's policies with out knowing it!"
+                    +" Once you have thouroughly scrubbed you tweet you may store your results for further analyses.")
+    
 
 if __name__ == "__main__":
     main()
