@@ -72,7 +72,7 @@ def publish_tweet(sentiment, sentence):
 
 
 def main():
-    st.image("image_resources/blue-wall-wood-fibre-boards-wood_final.jpg", use_column_width = True)
+    
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
     st.sidebar.image("image_resources/DSI-logo.jpg", use_column_width = True)
@@ -179,7 +179,7 @@ def main():
             else:
                 st.write("Your tweet is fine in terms of policy.")
                 st.write(topic_pred)
-    #                
+              
     if publish:
         publish_tweet(predText, sentence)
 
