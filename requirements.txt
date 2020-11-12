@@ -74,7 +74,7 @@ nbconvert==6.0.7
 nbformat==5.0.8
 nest-asyncio==1.4.2
 networkx==2.5
-nltk @ file:///tmp/build/80754af9/nltk_1592496090529/work
+nltk==3.5
 notebook==6.1.5
 numpy @ file:///C:/ci/numpy_and_numpy_base_1603466732592/work
 oauthlib==3.1.0
