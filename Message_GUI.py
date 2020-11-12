@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import re
+from functools import partial
 
 from flair.data import Sentence
 from flair.models import TextClassifier
