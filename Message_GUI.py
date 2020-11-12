@@ -132,8 +132,8 @@ def main():
                 pickle.load = partial(pickle.load, encoding="latin1")
                 pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
        
-                SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt', pickle_module=pickle)
-                EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt', pickle_module=pickle)
+                SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
+                EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
                 SentClassifier.predict(sentimentTweet)
                 EmoteClassifier.predict(emoteTweet)
                 
