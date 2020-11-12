@@ -19,6 +19,7 @@ from keras.preprocessing.sequence import pad_sequences
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
+
 def preprocess_test(x_test):
   """ this function allows to preprocess the test sentence
 

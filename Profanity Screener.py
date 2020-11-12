@@ -6,6 +6,9 @@ from nltk import bigrams
 from nltk import sent_tokenize
 import Database
 
+import nltk
+nltk.download('punkt')
+
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
 #inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
