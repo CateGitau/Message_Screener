@@ -130,8 +130,6 @@ def main():
             
             with st.spinner('Predicting...'):
                 
-                pickle.load = partial(pickle.load, encoding="latin1")
-                pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
        
                 SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
                 EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
