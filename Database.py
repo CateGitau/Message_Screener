@@ -86,9 +86,9 @@ class database():
             return :
             df : pandas dataframe (the list of blacklist words)
         """
-        # Store the result of SQL query  in the dataframe
+        # Retrieve all the records from the blacklist table into a list
         df = pd.read_sql_query("SELECT * FROM blacklist", self.con)
-        new_list = df['word'].drop(0).tolist()
+        new_list = df['word'].tolist()
         blacklist = [self.preprocess_term(term) for term in new_list] 
         return blacklist
 
@@ -97,7 +97,7 @@ class database():
             return :
             df : pandas dataframe (the list of sentiment words)
         """
-        # Store the result of SQL query  in the dataframe
+        # Retrieve all the records from the sentiment table into a list
         df = pd.read_sql_query("SELECT * FROM sentiment", self.con)
 
         return df['type'].tolist()
@@ -107,7 +107,7 @@ class database():
             return :
             df : pandas dataframe (the test messages)
         """
-        # Store the result of SQL query  in the dataframe
+        # Retrieve all the records from the test_msg table into a list
         df = pd.read_sql_query("SELECT * FROM test_msg", self.con)
 
         return df['text'].tolist()
@@ -119,8 +119,9 @@ class database():
             inputFile = open("blacklist.txt", mode = 'r')
             for line in inputFile:
                 #insert into the table
-                word = self.preprocess_term(line.decode('utf-8'))
-                test_msg = self.insert_new_blacklist_word_query(word)
+                term = line.strip() 
+                word = self.preprocess_term(term)
+                new_term = self.insert_new_blacklist_word_query(word)
                 # commit the statements
                 self.con.commit()
         except:
@@ -150,30 +151,41 @@ class database():
             self.con.rollback()
             raise RuntimeError("An error occurred ...")
 
+    ################### DELETE TABLE ###################
+    def clear_black_list_table(self):
+        """ clear the blacklist table """
+        sql = 'DELETE FROM blacklist'
+        self.cur.execute(sql)
 
+    ################### PREPROCESSING FUNCTION ###################
     def preprocess_term(self,term):
+        """
+            this function allows to preprocess a new term by:
+            - lowering its case,
+            - remove leading and trailing spaces,
+            - and removing multiple internal spaces. 
+
+            params:
+            term (string) : the term to preprocess
+
+            return:
+            term (string) : the preprocessed term 
+        """
         term = term.lower() # lower case
         term = term.strip() # remove leading and trailing spaces
         term = re.sub(' +', ' ', term) #remove multiple internal spaces
         return term
+   
     
 def main():
     db = database()
     db.query_table()
+
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist)
 
-
     term = "BLACK"
     print(db.preprocess_term(term))
-    """
-    # populate blacklist with newly added terms
-    inputFile = open("blacklist.txt", mode = 'r')
-    for line in inputFile:
-        db.insert_new_blacklist_word(line.strip())
-
-    df_blacklist = db.get_blacklist_list()
-    print(df_blacklist.shape)
     
     # populate blacklist with newly added terms
     inputFile = open("blacklist.txt", mode = 'r')
@@ -183,14 +195,9 @@ def main():
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
 
-    # populate blacklist with newly added terms
-    inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
-    for line in inputFile:
-        db.insert_new_blacklist_word(line.strip())
-
     df_blacklist = db.get_blacklist_list()
     print(df_blacklist.shape)
-    """
+    
 
 if __name__ == "__main__":
     main()
