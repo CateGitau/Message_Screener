@@ -218,7 +218,7 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
         final_terms = list(set(final_terms))
 
         return (inputMessage, final_terms)
-
+'''
 ### Tests ###
 print(profanityscreen("Bastard begot, bastard instructed, bastard in mind,... in everything illegitimate.", blacklist, mask=True))
 print(profanityscreen("Son and heir of a mongrel bitch.", blacklist, mask=True))
@@ -244,3 +244,4 @@ print(profanityscreen("You are a mother-fucker. You fucker.", blacklist, mask=Tr
 print(profanityscreen("You are a 666-Whore. Python-whore and You are a Java-whore", blacklist, mask=True))
 print(profanityscreen("You are a w1hore 1whore0, 1whore2, Python-1whore1. You are a Java1-2whore2, 55Java44-2whore2", blacklist, mask=True))
 
+'''
