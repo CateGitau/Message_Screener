@@ -50,7 +50,7 @@ Janome==0.4.1
 jedi==0.17.2
 Jinja2==2.11.2
 jmespath==0.10.0
-joblib @ file:///tmp/build/80754af9/joblib_1601912903842/work
+joblib == 0.17.0
 jsonschema==3.2.0
 jupyter-client==6.1.7
 jupyter-core==4.6.3
@@ -76,7 +76,7 @@ nest-asyncio==1.4.2
 networkx==2.5
 nltk==3.5
 notebook==6.1.5
-numpy @ file:///C:/ci/numpy_and_numpy_base_1603466732592/work
+numpy == 1.19.2
 oauthlib==3.1.0
 opt-einsum==3.3.0
 overrides==3.0.0
@@ -93,7 +93,7 @@ protobuf==3.13.0
 pyarrow==2.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+pycparser == 2.20
 pydeck==0.5.0
 Pygments==2.7.2
 pyparsing==2.4.7
@@ -132,7 +132,7 @@ threadpoolctl==2.1.0
 tokenizers==0.9.2
 toml==0.10.2
 toolz==0.11.1
-torch @ file:///C:/ci/pytorch_1596373105144/work
+torch == 1.6.0
 tornado==6.1
 tqdm==4.51.0
 traitlets==5.0.5
