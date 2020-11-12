@@ -4,7 +4,7 @@ import streamlit as st
 import Database
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pickle
 import re
 
 from flair.data import Sentence
@@ -128,8 +128,12 @@ def main():
             basic_emo_dict = {"0": ':rage:', "4": ":smile:"}
             
             with st.spinner('Predicting...'):
-                SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
-                EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
+                
+                pickle.load = partial(pickle.load, encoding="latin1")
+                pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+       
+                SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt', pickle_module=pickle)
+                EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt', pickle_module=pickle)
                 SentClassifier.predict(sentimentTweet)
                 EmoteClassifier.predict(emoteTweet)
                 
