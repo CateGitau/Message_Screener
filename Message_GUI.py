@@ -4,8 +4,9 @@ import streamlit as st
 import Database
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pickle
 import re
+from functools import partial
 
 from flair.data import Sentence
 from flair.models import TextClassifier
@@ -128,6 +129,10 @@ def main():
             basic_emo_dict = {"0": ':rage:', "4": ":smile:"}
             
             with st.spinner('Predicting...'):
+                
+                pickle.load = partial(pickle.load, encoding="latin1")
+                pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+       
                 SentClassifier = TextClassifier.load('twitter_sentiment/model-saves/final-model.pt')
                 EmoteClassifier = TextClassifier.load('twitter_sentiment/model-saves/emotion-model.pt')
                 SentClassifier.predict(sentimentTweet)
@@ -152,7 +157,7 @@ def main():
         if topicSentence:
             topicTweet = preprocess_test(topicSentence)
             
-            topic_dict = {0: "obscenity", 1: "violence", 2: "verbal abuse", 3: "identity hate crime", 4: "hate crime", 5: "offense", 6: "neither"}
+            topic_dict = {0: "obscenity", 1: "violence", 2: "verbal abuse", 3: "identity hate speech", 4: "hate speech", 5: "offense", 6: "neither"}
             
             policies_dict = {0 : "https://help.twitter.com/en/safety-and-security/offensive-tweets-and-content", 
                  1 : "https://help.twitter.com/en/rules-and-policies/violent-threats-glorification",
@@ -172,7 +177,7 @@ def main():
             topTopicText = topic_dict[topic_pred.argmax(1)[0]]
             
             graph_pred = pd.DataFrame(topic_pred, columns = ["obscenity", "violence", "verbal abuse", "identity hate crime", "hate crime", "offense", "neither"])
-            columns = ["obscenity", "violence", "verbal abuse", "identity hate crime", "hate crime", "offense", "neither"]
+            columns = ["obscenity", "violence", "verbal abuse", "identity hate speech", "hate speech", "offense", "neither"]
             if topic_pred.argmax(1)[0]!=6 :
               st.write("Your tweet may contain sentences that promote " + topTopicText+ " with  "+str(topic_pred[0][topTopic]*100) +" % confidence")
               st.write("Please review  Twitter Rules and policies: "+ twitter_rules)
@@ -180,13 +185,13 @@ def main():
             else:
                 st.write("Your tweet is fine in terms of policy.")
         
-                plt.bar(height = topic_pred.flatten(),x=columns, width = 1)
-                plt.title('Policy Breaking Likelihood')
-                plt.xticks(rotation=45)
-                plt.xlabel('Twitter Policies (Topics)')
-                plt.ylabel('Probability of Violation')
-                st.pyplot()
-                st.write(topic_pred)
+            plt.bar(height = topic_pred.flatten(),x=columns, width = 1)
+            plt.title('Policy Breaking Likelihood')
+            plt.xticks(rotation=45)
+            plt.xlabel('Twitter Policies (Topics)')
+            plt.ylabel('Probability of Violation')
+            st.pyplot()
+            st.write(topic_pred)
               
     if publish:
         
