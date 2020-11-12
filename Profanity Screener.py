@@ -6,9 +6,6 @@ from nltk import bigrams
 from nltk import sent_tokenize
 import Database
 
-import nltk
-nltk.download('punkt')
-
 # read file of blacklisted terms
 #inputFile = open("C:/Kandra DSI Program/Module 3/Project/code/Message_Screener/blacklist.txt", mode = 'r')
 #inputFile = open("Message_Screener/blacklist.txt", mode = 'r')
@@ -80,7 +77,8 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
         return blacklist
 
     # create regex for the blacklist terms to scan the messages; indifferent to trailing or leading digits as well as common prefixes and suffixes
-    blacklist_terms = [r"\b(?:\d)*(?:anti)*(?:de)*(?:dis)*(?:hyper)*(?:inter)*(?:intra)*(?:mal)*(?:mis)*(?:multi)*(?:non)*(?:poly)*(?:pre)*(?:pro)*(?:re)*(?:semi)*(?:sub)*(?:super)*(?:supra)*(?:trans)*(?:ultra)*(?:un)*({term})(?:s)*(?:er)*(?:ing)*(?:es)*(?:ful)*(?:full)*(?:fuly)*(?:ion)*(?:ity)*(?:ment)*(?:nes)*(?:ness)*(?:ship)*(?:sion)*(?:able)*(?:ible)*(?:ary)*(?:ious)*(?:ous)*(?:ive)*(?:les)*(?:less)*(?:ed)*(?:ise)*(?:ize)*(?:ly)*(?:ward)*(?:wise)*(?:\d)*\b".format(term=term) for term in augement_blacklist(filterList)]
+    blacklist = augement_blacklist(filterList)
+    blacklist_terms = [r"\b(?:\d)*(?:anti)*(?:de)*(?:dis)*(?:hyper)*(?:inter)*(?:intra)*(?:mal)*(?:mis)*(?:multi)*(?:non)*(?:poly)*(?:pre)*(?:pro)*(?:re)*(?:semi)*(?:sub)*(?:super)*(?:supra)*(?:trans)*(?:ultra)*(?:un)*({term})(?:s)*(?:er)*(?:ing)*(?:es)*(?:ful)*(?:full)*(?:fuly)*(?:ion)*(?:ity)*(?:ment)*(?:nes)*(?:ness)*(?:ship)*(?:sion)*(?:able)*(?:ible)*(?:ary)*(?:ious)*(?:ous)*(?:ive)*(?:les)*(?:less)*(?:ed)*(?:ise)*(?:ize)*(?:ly)*(?:ward)*(?:wise)*(?:\d)*\b".format(term=term) for term in blacklist]
     regexes = [re.compile(term) for term in blacklist_terms]
     find_list = [regex.search(message) for message in messages for regex in regexes if regex.search(message) != None]
 
@@ -94,36 +92,44 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
 
     black_words = list(set(black_words))
 
+    #clean blackwords that contain leading or trailing numbers
+    black_terms_to_remove = []
+    for term in black_words:
+        if bool(re.search(r"\d", term)) and term not in blacklist:
+            no_num = term.translate(str.maketrans('', '', "0123456789"))
+            black_terms_to_remove.append(term)
+            black_words.append(no_num)
+
+    for term in black_terms_to_remove:
+        black_words.remove(term)
+    black_words = list(set(black_words))
+
     ## create final list of black words in the format (insofar as the hyphen) that they appear in the message
     # find black words that appear as-is in base form (not before or after a hyphen; separate words)
-    shortlist = [r"\b(?<!-)({term})(?!-)\b".format(term=term) for term in black_words]
+    shortlist = [r"\b(?<!-)\d*{term}\d*(?!-)\b".format(term=term) for term in black_words]
     shortlist_regexes = [re.compile(term) for term in shortlist]
-    find_shortlist = [regex.search(message_keepHyphen_no_punctuation) for regex in shortlist_regexes if regex.search(message_keepHyphen_no_punctuation) != None]
+    find_shortlist = [regex.findall(message_keepHyphen_no_punctuation) for regex in shortlist_regexes if regex.search(message_keepHyphen_no_punctuation) != None]
 
     #add the terms to the final list
-    final_terms = list(set([hit.group() for hit in find_shortlist]))
+    final_terms = [j for sub in find_shortlist for j in sub]
 
     # remaining terms are probably partial matches that appear as part of hyphenated words
-    remaining_terms = [term for term in black_words if term not in final_terms]
-
     # find the hyphenated terms that the base profane word appears in
-    remaining1 = [r"(\b{term}-\w+\b)".format(term=term) for term in remaining_terms] #match word before hyphen
-    remaining2 = [r"(\b\w+-{term}\b)".format(term=term) for term in remaining_terms] #match word after hyphen
+    remaining1 = [r"(\b\d*{term}\d*-\w+\b)".format(term=term) for term in black_words] #match word before hyphen
+    remaining2 = [r"(\b\w+-\d*{term}\d*\b)".format(term=term) for term in black_words] #match word after hyphen
     remaining = remaining1 + remaining2
     remaining_regex = [re.compile(word) for word in remaining]
-    remaining_list = [regex.search(message_keepHyphen_no_punctuation) for regex in remaining_regex if
+    remaining_list = [regex.findall(message_keepHyphen_no_punctuation) for regex in remaining_regex if
                       regex.search(message_keepHyphen_no_punctuation) != None]
 
     # add the unique hyphenated profane words to the final terms list
-    final_terms.extend(list(set([hit.group().strip() for hit in remaining_list])))
+    final_terms.extend([j for sub in remaining_list for j in sub])
 
     # terms that still remain are either not in the list because they were one part of
     # a hyphenated word or it is a multiple word term that is hyphenated in the message
-    still_remaining = [term for term in black_words if term not in final_terms]
-
     # create regex to scan terms that may contain hyphens between the words
     still = []
-    for term in still_remaining:
+    for term in black_words:
         if bool(re.search(r"\s", term)):
             split_term = term.split()
             regex_builder = split_term[0]
@@ -132,11 +138,13 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
             still.append(regex_builder)
 
     still_regex = [re.compile(word) for word in still]
-    still_list = [regex.search(message_keepHyphen_no_punctuation) for regex in still_regex if
+    still_list = [regex.findall(message_keepHyphen_no_punctuation) for regex in still_regex if
                   regex.search(message_keepHyphen_no_punctuation) != None]
 
     # add the multiple hyphenated profane words to the final terms list
-    final_terms.extend(list(set([hit.group().strip() for hit in still_list])))
+    final_terms.extend([j for sub in still_list for j in sub])
+
+    final_terms = list(set(final_terms))
 
     #define function that masks words
     def cleaner(black_word, replacements=replacements):
@@ -158,7 +166,7 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
         # randomly select 50% of the valid letters to convert to a symbol
         selected_positions = [item for index, item in enumerate(valid_positions) if index % 2 == 0]
 
-        # subsitute the randomly selected positions with randomly selected replacement symbols
+        # substitute the randomly selected positions with randomly selected replacement symbols
         return ''.join([random.choice(replacements) if i in selected_positions else input_list[i] for i in range(len(black_word))])
 
     #censor flagged words
@@ -179,8 +187,33 @@ def profanityscreen(inputMessage, filterList, mask = False, replacements="$@#"):
         for regex in masker:
             new_message = re.sub(regex, lambda x: cleaner(x.group()), new_message)
 
+        # clean final terms of digits
+        terms_to_remove = []
+        for term in final_terms:
+            if bool(re.search(r"\d", term)) and term not in blacklist:
+                no_num = term.translate(str.maketrans('', '', "0123456789"))
+                terms_to_remove.append(term)
+                final_terms.append(no_num)
+
+        for term in terms_to_remove:
+            final_terms.remove(term)
+        final_terms = list(set(final_terms))
+
         return (new_message, final_terms)
+
     else:
+        # clean final terms of digits
+        terms_to_remove = []
+        for term in final_terms:
+            if bool(re.search(r"\d", term)) and term not in blacklist:
+                no_num = term.translate(str.maketrans('', '', "0123456789"))
+                terms_to_remove.append(term)
+                final_terms.append(no_num)
+
+        for term in terms_to_remove:
+            final_terms.remove(term)
+        final_terms = list(set(final_terms))
+
         return (inputMessage, final_terms)
 
 ### Tests ###
@@ -194,20 +227,17 @@ print(profanityscreen("You $%&*bastard!$%&*'", blacklist, mask=True))
 print(profanityscreen("The Scunthorpe problem is that our town's name is censored because it contains the substring 'cunt'. No fair you mother-fucker!", blacklist, mask=True))
 print(profanityscreen("The Scunthorpe problem is that our town's name is censored because it contains the substring cunt. No fair!", blacklist, mask=True))
 print(profanityscreen("Have you seen the video 2 girls 1 cup? No, but one guy one jar is a must-see!", blacklist, mask=True))
-print(profanityscreen("Have you seen the video 2 girls 1 cup? No, but one-guy one-jar is a must-see!", blacklist, mask=True))
+print(profanityscreen("Have you seen the video 2 girls 1 cup? No, but one-guy one-jar aka one-guy one jar is a must-see!", blacklist, mask=True))
 print(profanityscreen("you are a dumb-ass.", blacklist, mask=True))
 print(profanityscreen("dumb-ass you are", blacklist, mask=True))
 print(profanityscreen("6Ass-dumb4 Ass-dumb5 you are", blacklist, mask=True))
 print(profanityscreen("python-whORe4", blacklist, mask=True))
-print(profanityscreen("Thou wolf-bitch wolf-bitch", blacklist, mask=True))
+print(profanityscreen("Thou wolf-bitch wolf2-bitch", blacklist, mask=True))
 print(profanityscreen("Thou 4bitch-wolf5", blacklist, mask=True))
 print(profanityscreen("Give me a hand. Job is a great author.", blacklist, mask=True))
 print(profanityscreen("The Scunthorpe problem is that our town's name is   censored because it contains the substring 'Cunt'. No fair you f.u.c.k.e.r! What a dumb-ass controversy.", blacklist, mask=True))
-print(profanityscreen("Do not censor the word cunt. Only a Cunt does that.", blacklist, mask=True))
-print(profanityscreen("whore4manic.", blacklist, mask=True))
-print(profanityscreen("No swear words", blacklist, mask=True))
-
-
-
-
+print(profanityscreen("You are a antifucker", blacklist, mask=True))
+print(profanityscreen("You are a mother-fucker. You fucker.", blacklist, mask=True))
+print(profanityscreen("You are a 666-Whore. Python-whore and You are a Java-whore", blacklist, mask=True))
+print(profanityscreen("You are a w1hore 1whore0, 1whore2, Python-1whore1. You are a Java1-2whore2, 55Java44-2whore2", blacklist, mask=True))
 
