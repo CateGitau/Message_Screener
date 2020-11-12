@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 import Database
 import matplotlib.pyplot as plt
+import numpy as np
 
 import re
 
@@ -15,7 +16,7 @@ import tensorflow as tf
 from keras.models import Model
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 def preprocess_test(x_test):
@@ -64,7 +65,7 @@ def preprocess(text):
 
 
 def publish_tweet(sentiment, sentence):
-    st.sidebar.write("The tweet has been published!!!")
+    st.write("The tweet has been published!!!")
     db1 =  Database.database()
     if sentiment != "None":
         db1.insert_new_sentiment_query(sentiment)
@@ -74,7 +75,7 @@ def publish_tweet(sentiment, sentence):
 
 def main():
     
-    works = False
+
     st.title("Tweet Screener")
     st.subheader("*Guaranteeing 2020 proof tweets to the masses*")
     st.sidebar.image("image_resources/DSI-logo.jpg", use_column_width = True)
@@ -141,7 +142,7 @@ def main():
             predEmote = emoteTweet.labels[0]
             predEText = emote_dict[predEmote.value[0]]
             st.markdown('Your sentence is predicted to portray ' + predEText +  " " +emoji_dict[predEmote.value[0]] +' with '+ "{:.2f}".format(predEmote.score*100)+ ' % confidence')
- 
+            
     
     if section == "Topic Identifier":
         st.subheader("Topic Identifier")
@@ -170,32 +171,39 @@ def main():
             topTopicText = topic_dict[topic_pred.argmax(1)[0]]
             
             graph_pred = pd.DataFrame(topic_pred, columns = ["obscenity", "violence", "verbal abuse", "identity hate crime", "hate crime", "offense", "neither"])
+            columns = ["obscenity", "violence", "verbal abuse", "identity hate crime", "hate crime", "offense", "neither"]
             if topic_pred.argmax(1)[0]!=6 :
               st.write("Your tweet may contain sentences that promote " + topTopicText+ " with  "+str(topic_pred[0][topTopic]*100) +" % confidence")
               st.write("Please review  Twitter Rules and policies: "+ twitter_rules)
               st.write("And Twiiter's "+ topTopicText + " policy: "+ policies_dict[topic_pred.argmax(1)[0]])
             else:
                 st.write("Your tweet is fine in terms of policy.")
-                st.area_chart(graph_pred)
+        
+                plt.bar(height = topic_pred.flatten(),x=columns, width = 1)
+                plt.title('Policy Breaking Likelihood')
+                plt.xticks(rotation=45)
+                plt.xlabel('Twitter Policies (Topics)')
+                plt.ylabel('Probability of Violation')
+                st.pyplot()
                 st.write(topic_pred)
               
     if publish:
         
             
-        if tweet == sentence:
-            works = True
+        if sentence:
+   
             sentiment = "None"
             sentence = sentence
             publish_tweet(sentiment, sentence)
                 
-        elif tweet == "Emotion Tweet" and sentSentence:
-            works = True
+        elif sentSentence:
+     
             sentiment = predEText
             sentence = sentSentence
             publish_tweet(sentiment, sentence)
             
-        elif tweet == "Topic Tweet" and topicSentence:
-            works = True
+        elif topicSentence:
+      
             sentiment = predEText
             sentence = topicSentence
             publish_tweet(sentiment, sentence)
@@ -204,7 +212,7 @@ def main():
             st.sidebar.write("You haven't written or analysed your tweet yet.")
         
 
-    st.sidebar.markdown("This application helps determine how problematic your tweet is before publishing it."
+    st.sidebar.markdown("This   application helps determine how problematic your tweet is before publishing it."
                     + " We utilise three main tools to achieve this."
                     +" A swear word analyser that checks your tweet for profanity and delivers a censored tweet."
                     +" A sentiment analyser that predicts the emotion in your tweet, to check if you were really being positive."
