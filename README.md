@@ -33,7 +33,7 @@ The product is deployed at https://share.streamlit.io/malcolmrite-dsi/message_sc
 
  - Run the Message_GUI.py file to get the project running in your local machine using Streamlit
  ```
- Streamlit run Message_GUI.py
+ streamlit run Message_GUI.py
  ```
 
  ### Deployment
