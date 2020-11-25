@@ -10,13 +10,12 @@ The product is deployed at https://share.streamlit.io/malcolmrite-dsi/message_sc
 
 ## Summary
 
- [Getting Started](#getting-started)
- [Deployment](#deployment)
- [Challenges](#Challenges)
- [Authors](#authors)
- [License](#license)
-
- [Acknowledgments](#acknowledgments)
+ - [Getting Started](#getting-started)
+ - [Deployment](#deployment)
+ - [Challenges](#Challenges)
+ - [Authors](#authors)
+ - [License](#license)
+ - [Acknowledgments](#acknowledgments)
 
 
  ### Getting Started
@@ -38,18 +37,20 @@ The product is deployed at https://share.streamlit.io/malcolmrite-dsi/message_sc
  ```
 
  ### Deployment
- We used [streamlit sharing](https://www.streamlit.io/sharing) to deploy the application all you have to do is request and invite to start sharing the app then follow the instructions given.
+ We used [streamlit sharing](https://www.streamlit.io/sharing) to deploy the application. All you have to do is send a request to get an invite so that you start sharing the app then follow the instructions given.
 
  ### Challenges
  One of the challenges we faced while deploying is that the Sentiment Analyser model was too large and we had to use Github Large File Storage(LFS) and streamlit does not support git LFS. Try using another sentiment model and try and deploy that instead. But it works great on the local machine.
 
  ### Authors
- [Martin Page](https://github.com/malcolmrite-dsi)
- [Catherine Gitau](https://github.com/CateGitau)
- [Malcom Wright](https://github.com/malcolmrite-dsi)
- [Fanamby](https://github.com/FanambyH)
+ - [Martin Page](https://github.com/malcolmrite-dsi)
+ - [Catherine Gitau](https://github.com/CateGitau)
+ - [Malcom Wright](https://github.com/malcolmrite-dsi)
+ - [Fanamby](https://github.com/FanambyH)
 
  ### License
+
+ [MIT](https://mit-license.org/)
 
  ### Acknowledgements
 
