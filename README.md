@@ -1,4 +1,4 @@
-# Message_Screener
+# Message_Screener [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/categitau/message_screener/main/Message_GUI.py)
 
 This project was part of the DSI 2020 which was voted the best project in Module 3. Find the certification [here](https://drive.google.com/file/d/13HCegnHzkxRR_nCBpMfZeNRZ0g-b7gQZ/view?usp=sharing). The aim of the project is to create a tool that analyses a user's message before sending. This will enable social media users to be more mindful of their posts to avoid unnecessary controvercy by flagging words, tone and topics that might be considered sensitive. This repo contains code for the following product features:        
 1. Feature 1: Profanity Screener (with blacklist)   
