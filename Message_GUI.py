@@ -17,7 +17,7 @@ import tensorflow as tf
 from keras.models import Model
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-st.set_option('deprecation.showPyplotGlobalUse', False)
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 
@@ -83,7 +83,7 @@ def main():
     st.sidebar.image("image_resources/DSI-logo.jpg", use_column_width = True)
     
     st.sidebar.subheader("Africa DSI NLP Project by Team 2")
-    st.sidebar.write("Catherine, Fanamby, Malcolm, and Martin")
+    st.write("Catherine, Fanamby, Malcolm, and Martin")
     section = st.sidebar.radio('Sections to Visit',('Swear Word Analyser', 'Sentiment Analyser', 'Topic Identifier'))
 
     
@@ -182,7 +182,8 @@ def main():
               st.write("And Twiiter's "+ topTopicText + " policy: "+ policies_dict[topic_pred.argmax(1)[0]])
             else:
                 st.write("Your tweet is fine in terms of policy.")
-        
+
+            #fig, ax = plt.subplots(figsize=(15,5))
             plt.bar(height = topic_pred.flatten(),x=columns, width = 1)
             plt.title('Policy Breaking Likelihood')
             plt.xticks(rotation=45)
